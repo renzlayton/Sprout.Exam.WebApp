@@ -92,7 +92,10 @@ export class EmployeeEdit extends Component {
         this.props.history.push("/employees/index");
     }
     else{
-        alert("There was an error occured.");
+        // alert("There was an error occured.");
+        const data = await response.json();
+      alert(JSON.stringify(data.errors));
+      this.setState({ loadingSave: false });
     }
   }
 

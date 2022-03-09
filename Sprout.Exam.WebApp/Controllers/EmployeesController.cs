@@ -9,6 +9,8 @@ using Sprout.Exam.Business.DataTransferObjects;
 using Sprout.Exam.Common.Process;
 using Sprout.Exam.Common.Enums;
 using Sprout.Exam.WebApp.Data;
+using System.Diagnostics;
+using Sprout.Exam.WebApp.Validation;
 
 namespace Sprout.Exam.WebApp.Controllers
 {
@@ -71,13 +73,13 @@ namespace Sprout.Exam.WebApp.Controllers
         /// Refactor this method to go through proper layers and insert employees to the DB.
         /// </summary>
         /// <returns></returns>
+  
         [HttpPost]
+
         public async Task<IActionResult> Post(CreateEmployeeDto input)
         {
 
            var id = await Task.FromResult(_context.ResultList.Max(m => m.Id) + 1);
-
-           
 
             _context.ResultList.Add(new EmployeeDto
             {
@@ -88,8 +90,14 @@ namespace Sprout.Exam.WebApp.Controllers
                 Salary = input.Salary
                 
             });
-            _context.SaveChanges();
-            return Created($"/api/employees/{id}", id);
+
+            if (ModelState.IsValid)
+            {
+                _context.SaveChanges();
+                return Created($"/api/employees/{id}", id);
+            }
+            return BadRequest();
+           
         }
 
 
@@ -100,9 +108,10 @@ namespace Sprout.Exam.WebApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await Task.FromResult(StaticEmployees.ResultList.FirstOrDefault(m => m.Id == id));
+            var result = await Task.FromResult(_context.ResultList.FirstOrDefault(m => m.Id == id));
             if (result == null) return NotFound();
-            StaticEmployees.ResultList.RemoveAll(m => m.Id == id);
+            _context.ResultList.Remove(result);
+            _context.SaveChanges();
             return Ok(id);
         }
 

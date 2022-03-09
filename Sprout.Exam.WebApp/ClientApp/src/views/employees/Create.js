@@ -5,8 +5,11 @@ export class EmployeeCreate extends Component {
   static displayName = EmployeeCreate.name;
 
   constructor(props) {
+    var curr = new Date();
+    curr.setDate(curr.getDate() + 3);
+    var date = curr.toISOString().substr(0,10);
       super(props);
-      this.state = { fullName: '', birthdate: '', tin: '', typeId: 1, salary:0.00, loading: false, loadingSave: false };
+      this.state = { fullName: 'test', birthdate: date, tin: '', typeId: 1, salary:0.00, loading: false,errors:[], loadingSave: false };
   }
 
   componentDidMount() {
@@ -33,6 +36,7 @@ export class EmployeeCreate extends Component {
 <div className='form-group col-md-6'>
   <label htmlFor='inputFullName4'>Full Name: *</label>
   <input type='text' className='form-control' id='inputFullName4' onChange={this.handleChange.bind(this)} name="fullName" value={this.state.fullName} placeholder='Full Name' />
+  
 </div>
 <div className='form-group col-md-6'>
   <label htmlFor='inputBirthdate4'>Birthdate: *</label>
@@ -42,7 +46,7 @@ export class EmployeeCreate extends Component {
 <div className="form-row">
 <div className='form-group col-md-6'>
   <label htmlFor='inputTin4'>TIN: *</label>
-  <input type='text' className='form-control' id='inputTin4' onChange={this.handleChange.bind(this)} value={this.state.tin} name="tin" placeholder='TIN' />
+  <input type='text' maxlength = '12'  className='form-control' id='inputTin4' onChange={this.handleChange.bind(this)} value={this.state.tin} name="tin" placeholder='TIN' />
 </div>
 
 <div className='form-group col-md-6'>
@@ -91,7 +95,9 @@ export class EmployeeCreate extends Component {
         this.props.history.push("/employees/index");
     }
     else{
-        alert("There was an error occured.");
+      const data = await response.json();
+      alert(JSON.stringify(data.errors));
+      this.setState({ loadingSave: false });
     }
   }
 
