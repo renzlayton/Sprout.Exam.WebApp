@@ -21,6 +21,7 @@ export class EmployeesIndex extends Component {
             <th>Full Name</th>
             <th>Birthdate</th>
             <th>TIN</th>
+            <th>Salary</th>
             <th>Type</th>
             <th>Actions</th>
           </tr>
@@ -31,6 +32,7 @@ export class EmployeesIndex extends Component {
               <td>{employee.fullName}</td>
               <td>{employee.birthdate}</td>
               <td>{employee.tin}</td>
+              <td>{employee.salary}</td>
               <td>{employee.typeId === 1?"Regular":"Contractual"}</td>
               <td>
               <button type='button' className='btn btn-info mr-2' onClick={() => parent.props.history.push("/employees/" + employee.id + "/edit")} >Edit</button>

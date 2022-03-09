@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Sprout.Exam.Business.DataTransferObjects;
 using Sprout.Exam.Common.Enums;
+using Sprout.Exam.Common.Process;
 using Sprout.Exam.WebApp.Data;
 
 namespace Sprout.Exam.WebApp.Controllers
@@ -60,6 +61,7 @@ namespace Sprout.Exam.WebApp.Controllers
             item.Tin = input.Tin;
             item.Birthdate = input.Birthdate.ToString("yyyy-MM-dd");
             item.TypeId = input.TypeId;
+            item.Salary = input.Salary;
             _context.Update(item);
             _context.SaveChanges();
             return Ok(item);
@@ -82,9 +84,10 @@ namespace Sprout.Exam.WebApp.Controllers
                 Birthdate = input.Birthdate.ToString("yyyy-MM-dd"),
                 FullName = input.FullName,
                 Tin = input.Tin,
-                TypeId = input.TypeId
+                TypeId = input.TypeId,
+                Salary = input.Salary
+                
             });
-
             _context.SaveChanges();
             return Created($"/api/employees/{id}", id);
         }
@@ -116,6 +119,7 @@ namespace Sprout.Exam.WebApp.Controllers
         public async Task<IActionResult> Calculate(int id,decimal absentDays,decimal workedDays)
         {
             var result = await Task.FromResult(StaticEmployees.ResultList.FirstOrDefault(m => m.Id == id));
+            EmployeeSalaryFactory factory = null;
 
             if (result == null) return NotFound();
             var type = (EmployeeType) result.TypeId;

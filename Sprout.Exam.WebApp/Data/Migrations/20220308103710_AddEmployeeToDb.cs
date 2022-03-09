@@ -15,7 +15,8 @@ namespace Sprout.Exam.WebApp.Data.Migrations
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Birthdate = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Tin = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TypeId = table.Column<int>(type: "int", nullable: false)
+                    TypeId = table.Column<int>(type: "int", nullable: false),
+                    Salary = table.Column<int>(type: "decimal", nullable: false)
                 },
                 constraints: table =>
                 {
