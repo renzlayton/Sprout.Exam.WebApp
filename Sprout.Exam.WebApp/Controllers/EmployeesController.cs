@@ -11,6 +11,10 @@ using Sprout.Exam.Common.Enums;
 using Sprout.Exam.WebApp.Data;
 using System.Diagnostics;
 using Sprout.Exam.WebApp.Validation;
+using System.Data.Entity.Validation;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Core;
+using System.Data.SqlClient;
 
 namespace Sprout.Exam.WebApp.Controllers
 {
@@ -81,20 +85,66 @@ namespace Sprout.Exam.WebApp.Controllers
 
            var id = await Task.FromResult(_context.ResultList.Max(m => m.Id) + 1);
 
-            _context.ResultList.Add(new EmployeeDto
-            {
-                Birthdate = input.Birthdate.ToString("yyyy-MM-dd"),
-                FullName = input.FullName,
-                Tin = input.Tin,
-                TypeId = input.TypeId,
-                Salary = input.Salary
+            EmployeeDto model = new EmployeeDto();
+            model.Id = id;
+            model.Birthdate = input.Birthdate.ToString("yyyy-MM-dd");
+            model.FullName = input.FullName;
+            model.Tin = input.Tin;
+            model.TypeId = input.TypeId;
+            model.Salary = input.Salary;
+
+            //_context.ResultList.Add(new EmployeeDto
+            //{
+            //    Birthdate = input.Birthdate.ToString("yyyy-MM-dd"),
+            //    FullName = input.FullName,
+            //    Tin = input.Tin,
+            //    TypeId = input.TypeId,
+            //    Salary = input.Salary
                 
-            });
+            //});
 
             if (ModelState.IsValid)
             {
-                _context.SaveChanges();
-                return Created($"/api/employees/{id}", id);
+                try
+                {
+                    _context.ResultList.Add(model);
+                    _context.SaveChanges();
+                    return Created($"/api/employees/{id}", id);
+                }
+                catch (DbEntityValidationException e)
+                {
+                    foreach (var eve in e.EntityValidationErrors)
+                    {
+                        Console.WriteLine(string.Format(@"Entity of type ""{0}"" in state ""{1}"" 
+                   has the following validation errors:",
+                            eve.Entry.Entity.GetType().Name,
+                            eve.Entry.State));
+                        foreach (var ve in eve.ValidationErrors)
+                        {
+                            Console.WriteLine(string.Format(@"- Property: ""{0}"", Error: ""{1}""",
+                                ve.PropertyName, ve.ErrorMessage));
+                        }
+                    }
+                    return BadRequest();
+                }
+                catch (DbUpdateException e)
+                {
+                    UpdateException updateException = (UpdateException)e.InnerException;
+                    SqlException sqlException = (SqlException)updateException.InnerException;
+
+                    foreach (SqlError error in sqlException.Errors)
+                    {
+
+                        Console.WriteLine(string.Format(@"- Property: ""{0}"", Error: ""{1}""",
+                            error.Source, error.Message));
+                    }
+                    return BadRequest();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return BadRequest();
+                }
             }
             return BadRequest();
            
@@ -110,9 +160,48 @@ namespace Sprout.Exam.WebApp.Controllers
         {
             var result = await Task.FromResult(_context.ResultList.FirstOrDefault(m => m.Id == id));
             if (result == null) return NotFound();
-            _context.ResultList.Remove(result);
-            _context.SaveChanges();
-            return Ok(id);
+
+            try
+            {
+                _context.ResultList.Remove(result);
+                _context.SaveChanges();
+                return Ok(id);
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    Console.WriteLine(string.Format(@"Entity of type ""{0}"" in state ""{1}"" 
+                   has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name,
+                        eve.Entry.State));
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        Console.WriteLine(string.Format(@"- Property: ""{0}"", Error: ""{1}""",
+                            ve.PropertyName, ve.ErrorMessage));
+                    }
+                }
+                return BadRequest();
+            }
+            catch (DbUpdateException e)
+            {
+                UpdateException updateException = (UpdateException)e.InnerException;
+                SqlException sqlException = (SqlException)updateException.InnerException;
+
+                foreach (SqlError error in sqlException.Errors)
+                {
+
+                    Console.WriteLine(string.Format(@"- Property: ""{0}"", Error: ""{1}""",
+                        error.Source, error.Message));
+                }
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest();
+            }
+           
         }
 
 
