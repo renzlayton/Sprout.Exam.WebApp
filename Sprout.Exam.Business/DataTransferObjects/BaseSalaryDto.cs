@@ -4,13 +4,11 @@ using System.Text;
 
 namespace Sprout.Exam.Business.DataTransferObjects
 {
-    public class EmployeeDto
+    public abstract class BaseSalaryDto
     {
         public int Id { get; set; }
-        public string FullName { get; set; }
-        public string Birthdate { get; set; }
-        public string Tin { get; set; }
         public int TypeId { get; set; }
-        public decimal Salary { get; set; }
+        public decimal AbsentDays { get; set; }
+        public decimal WorkedDays { get; set; }
     }
 }
